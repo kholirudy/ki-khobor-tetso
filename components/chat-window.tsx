@@ -87,6 +87,77 @@ function FoodCard({ content }: { content: string }) {
   }
 }
 
+function AssignmentCard({ content }: { content: string }) {
+  try {
+    const extract = (key: string) =>
+      content.match(new RegExp(`${key}:\\s*([^|]+)`))?.[1]?.trim();
+
+    const subject = extract("subject");
+    const title = extract("title");
+    const dueDate = extract("due_date");
+    const faculty = extract("faculty");
+    const status = extract("status");
+
+    const isSubmitted = status === "submitted";
+
+    return (
+      <div className="w-full bg-white/5 border border-white/10 rounded-2xl p-4">
+        <div className="flex items-center justify-between mb-3">
+          <p className="text-xs text-white/50 uppercase tracking-wider">{subject}</p>
+          <span className={`text-xs px-2 py-1 rounded-full font-semibold ${
+            isSubmitted
+              ? "bg-green-500/20 text-green-400 border border-green-500/30"
+              : "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30"
+          }`}>
+            {isSubmitted ? "✅ Submitted" : "⏳ Pending"}
+          </span>
+        </div>
+        <p className="font-bold text-white text-lg mb-3">{title}</p>
+        <div className="flex flex-col gap-1 text-sm text-white/60">
+          <p>👨‍🏫 {faculty}</p>
+          <p>📅 Due: {dueDate}</p>
+        </div>
+      </div>
+    );
+  } catch {
+    return <p className="leading-relaxed">{content}</p>;
+  }
+}
+
+function ClubCard({ content }: { content: string }) {
+  try {
+    const extract = (key: string) =>
+      content.match(new RegExp(`${key}:\\s*([^|]+)`))?.[1]?.trim();
+
+    const name = extract("name");
+    const description = extract("description");
+    const meetingDay = extract("meeting_day");
+    const venue = extract("venue");
+    const contact = extract("contact");
+    const howToJoin = extract("how_to_join");
+
+    return (
+      <div className="w-full bg-white/5 border border-white/10 rounded-2xl p-4">
+        <div className="mb-3">
+          <p className="font-bold text-white text-lg">{name}</p>
+          <p className="text-sm text-white/50 mt-1">{description}</p>
+        </div>
+        <div className="flex flex-col gap-1 text-sm text-white/60 mb-3">
+          <p>📅 {meetingDay}</p>
+          <p>📍 {venue}</p>
+          <p>✉️ {contact}</p>
+        </div>
+        <div className="pt-3 border-t border-white/10">
+          <p className="text-xs text-white/40 uppercase tracking-wider mb-1">How to Join</p>
+          <p className="text-sm text-white/70">{howToJoin}</p>
+        </div>
+      </div>
+    );
+  } catch {
+    return <p className="leading-relaxed">{content}</p>;
+  }
+}
+
 function renderMessageContent(content: string) {
   const looksLikeTimetable =
     content.includes('"subject"') &&
@@ -98,13 +169,20 @@ function renderMessageContent(content: string) {
     content.includes("vendor:") &&
     content.includes("price:");
 
-  if (looksLikeTimetable) {
-    return <TimetableCard content={content} />;
-  }
+  const looksLikeAssignment =
+    content.includes("subject:") &&
+    content.includes("due_date:") &&
+    content.includes("faculty:");
 
-  if (looksLikeFood) {
-    return <FoodCard content={content} />;
-  }
+  const looksLikeClub =
+    content.includes("meeting_day:") &&
+    content.includes("venue:") &&
+    content.includes("how_to_join:");
+
+  if (looksLikeTimetable) return <TimetableCard content={content} />;
+  if (looksLikeFood) return <FoodCard content={content} />;
+  if (looksLikeAssignment) return <AssignmentCard content={content} />;
+  if (looksLikeClub) return <ClubCard content={content} />;
 
   return <p className="leading-relaxed">{content}</p>;
 }
