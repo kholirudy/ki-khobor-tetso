@@ -1,29 +1,30 @@
 "use client";
-import CafeteriaCard from "@/components/cafeteria_card";
 import { useRouter } from "next/navigation";
 
 const modes = [
   {
     id: "senior",
-  
     title: "Senior Mode",
     desc: "Street-smart advice from a senior who's seen it all.",
     color: "hover:border-amber-400/60 hover:bg-amber-400/10",
     accent: "text-amber-400",
+    emoji: "🎓",
   },
   {
     id: "professional",
     title: "Professional Mode",
-    desc: "Official campus info — faculty, timetables, notices.",
+    desc: "Official college assistant. Crisp, accurate, structured.",
     color: "hover:border-blue-400/60 hover:bg-blue-400/10",
     accent: "text-blue-400",
+    emoji: "🏛️",
   },
   {
     id: "friendly",
-    title: "Buddy Mode",
-    desc: "Your hyper, meme-y friend who's always got your back.",
+    title: "Friendly Mode",
+    desc: "Your hyper, fun friend who's always got your back.",
     color: "hover:border-pink-400/60 hover:bg-pink-400/10",
     accent: "text-pink-400",
+    emoji: "🎉",
   },
 ];
 
@@ -32,10 +33,8 @@ export default function HomePage() {
 
   return (
     <main className="min-h-screen bg-[#0a0a0a] text-white flex flex-col items-center justify-center px-6">
-      {/* Grid background */}
       <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:50px_50px] pointer-events-none" />
 
-      {/* Hero */}
       <div className="relative text-center mb-16">
         <p className="text-white/40 text-sm tracking-widest uppercase mb-4">
           Tetso College · Campus AI
@@ -48,7 +47,6 @@ export default function HomePage() {
         </p>
       </div>
 
-      {/* Mode Cards */}
       <div className="relative grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-4xl">
         {modes.map((mode) => (
           <button
@@ -65,7 +63,6 @@ export default function HomePage() {
         ))}
       </div>
 
-      {/* Footer */}
       <p className="relative mt-16 text-white/20 text-xs">
         Built by The A-Team · Tetso College Vibe Coding 2026
       </p>
