@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import ChatWindow from "@/components/chat-window";
 import ChatInput from "@/components/chat-input";
 import ModeSwitcher from "@/components/mode-switcher";
@@ -31,6 +31,12 @@ export default function ChatPage() {
   const [isTyping, setIsTyping] = useState(false);
   const [showDelivery, setShowDelivery] = useState(false);
 
+  const bottomRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
   const theme = themes[currentMode as keyof typeof themes];
 
   const handleModeChange = (newMode: string) => {
@@ -60,56 +66,56 @@ export default function ChatPage() {
 
     const lowerInput = savedInput.toLowerCase();
 
-const isDeliveryQuery =
-  lowerInput.includes("deliver") ||
-  lowerInput.includes("samosa") ||
-  lowerInput.includes("get me") ||
-  lowerInput.includes("bring me") ||
-  lowerInput.includes("order");
+    const isDeliveryQuery =
+      lowerInput.includes("deliver") ||
+      lowerInput.includes("samosa") ||
+      lowerInput.includes("get me") ||
+      lowerInput.includes("bring me") ||
+      lowerInput.includes("order");
 
-if (isDeliveryQuery) {
-  setShowDelivery(true);
-  setMessages((prev) => [
-    ...prev,
-    {
-      role: "assistant",
-      content: "Sure! Let me set that up for you. 🛵",
-    },
-  ]);
-  setIsTyping(false);
-  return;
-}
+    if (isDeliveryQuery) {
+      setShowDelivery(true);
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content: "Sure! Let me set that up for you. 🛵",
+        },
+      ]);
+      setIsTyping(false);
+      return;
+    }
 
-try {
-  const response = await fetch("https://ki-khobor-tetso.vercel.app/api/chat",{
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      message: savedInput,
-      mode: currentMode,
-    }),
-  });
+    try {
+      const response = await fetch("https://ki-khobor-tetso.vercel.app/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message: savedInput,
+          mode: currentMode,
+        }),
+      });
 
-  const data = await response.json();
+      const data = await response.json();
 
-  setMessages((prev) => [
-    ...prev,
-    {
-      role: "assistant",
-      content: data.reply,
-    },
-  ]);
-} catch (error) {
-  setMessages((prev) => [
-    ...prev,
-    {
-      role: "assistant",
-      content: "Sorry, something went wrong. Please try again. 😅",
-    },
-  ]);
-}
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content: data.reply,
+        },
+      ]);
+    } catch (error) {
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content: "Sorry, something went wrong. Please try again. 😅",
+        },
+      ]);
+    }
 
-setIsTyping(false);
+    setIsTyping(false);
   };
 
   return (
@@ -133,6 +139,7 @@ setIsTyping(false);
         <div className="flex-1 overflow-y-auto p-6">
           <>
             <ChatWindow messages={messages} />
+            <div ref={bottomRef} />
 
             {isTyping && (
               <div className="mt-6 flex justify-start">
