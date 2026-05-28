@@ -48,14 +48,62 @@ function TimetableCard({ content }: { content: string }) {
   }
 }
 
+function FoodCard({ content }: { content: string }) {
+  try {
+    const extract = (key: string) =>
+      content.match(new RegExp(`${key}:\\s*([^|]+)`))?.[1]?.trim();
+
+    const name = extract("name");
+    const vendor = extract("vendor");
+    const location = extract("location");
+    const price = extract("price");
+    const isVeg = extract("is_veg");
+    const mealType = extract("meal_type");
+
+    return (
+      <div className="w-full bg-white/5 border border-white/10 rounded-2xl p-4">
+        <div className="flex items-center justify-between mb-3">
+          <p className="font-bold text-white text-lg">{name}</p>
+          <span className={`text-xs px-2 py-1 rounded-full font-semibold ${
+            isVeg === "true"
+              ? "bg-green-500/20 text-green-400 border border-green-500/30"
+              : "bg-red-500/20 text-red-400 border border-red-500/30"
+          }`}>
+            {isVeg === "true" ? "🟢 Veg" : "🔴 Non-Veg"}
+          </span>
+        </div>
+        <div className="flex flex-col gap-1 text-sm text-white/60">
+          <p>🏪 {vendor}</p>
+          <p>📍 {location}</p>
+          <p>🍽️ {mealType}</p>
+        </div>
+        <div className="mt-3 pt-3 border-t border-white/10">
+          <p className="text-white font-bold text-xl">₹{price}</p>
+        </div>
+      </div>
+    );
+  } catch {
+    return <p className="leading-relaxed">{content}</p>;
+  }
+}
+
 function renderMessageContent(content: string) {
   const looksLikeTimetable =
     content.includes('"subject"') &&
     content.includes('"faculty"') &&
     content.includes('"start"');
 
+  const looksLikeFood =
+    content.includes("name:") &&
+    content.includes("vendor:") &&
+    content.includes("price:");
+
   if (looksLikeTimetable) {
     return <TimetableCard content={content} />;
+  }
+
+  if (looksLikeFood) {
+    return <FoodCard content={content} />;
   }
 
   return <p className="leading-relaxed">{content}</p>;
