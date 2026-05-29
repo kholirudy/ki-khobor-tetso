@@ -116,7 +116,7 @@ export default function HomePage() {
         <img
           src="/logo.png"
           alt="Ki-Khobor Tetso"
-          className="h-10 w-auto transition-all duration-300 hover:scale-110 hover:opacity-80 cursor-pointer"
+          className="h-16 w-auto transition-all duration-300 hover:scale-110 hover:opacity-80 cursor-pointer"
         />
       </div>
 
