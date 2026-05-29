@@ -13,23 +13,33 @@ type Props = {
 
 function TimetableCard({ content }: { content: string }) {
   try {
-    const arrayMatch = content.match(/\[[\s\S]*\]/);
-    if (!arrayMatch) return <p className="leading-relaxed">{content}</p>;
+    // Parse new format: "BCA Sem 3 A - Monday: 09:00-09:55: Subject (Faculty, Room)"
+    const headerMatch = content.match(/^(.+?)\s*-\s*(\w+):/);
+    const header = headerMatch?.[1]?.trim();
+    const day = headerMatch?.[2]?.trim();
 
-    const periods = JSON.parse(arrayMatch[0]);
+    const periodRegex = /(\d{2}:\d{2})-(\d{2}:\d{2}):\s*([^(]+)\(([^,]+),\s*([^)]+)\)/g;
+    const periods = [];
+    let match;
+    while ((match = periodRegex.exec(content)) !== null) {
+      periods.push({
+        start: match[1],
+        end: match[2],
+        subject: match[3].trim(),
+        faculty: match[4].trim(),
+        room: match[5].trim(),
+      });
+    }
 
-    const program = content.match(/program:\s*([^|]+)/)?.[1]?.trim();
-    const semester = content.match(/semester:\s*([^|]+)/)?.[1]?.trim();
-    const section = content.match(/section:\s*([^|]+)/)?.[1]?.trim();
-    const day = content.match(/day:\s*([^|]+)/)?.[1]?.trim();
+    if (periods.length === 0) return <p className="leading-relaxed">{content}</p>;
 
     return (
       <div className="w-full">
         <p className="text-sm text-white/60 mb-3">
-          {program} · Semester {semester} · Section {section} · {day}
+          {header} · {day}
         </p>
         <div className="flex flex-col gap-2">
-          {periods.map((period: any, i: number) => (
+          {periods.map((period, i) => (
             <div key={i} className="flex gap-4 items-start bg-white/5 rounded-xl px-4 py-3 border border-white/10">
               <div className="text-xs text-white/50 w-24 shrink-0 pt-0.5">
                 {period.start} – {period.end}
@@ -47,7 +57,6 @@ function TimetableCard({ content }: { content: string }) {
     return <p className="leading-relaxed">{content}</p>;
   }
 }
-
 function FoodCard({ content }: { content: string }) {
   try {
     const extract = (key: string) =>
@@ -160,9 +169,8 @@ function ClubCard({ content }: { content: string }) {
 
 function renderMessageContent(content: string) {
   const looksLikeTimetable =
-    content.includes('"subject"') &&
-    content.includes('"faculty"') &&
-    content.includes('"start"');
+    content.includes("-") &&
+    content.match(/\d{2}:\d{2}-\d{2}:\d{2}/) !== null;
 
   const looksLikeFood =
     content.includes("name:") &&
