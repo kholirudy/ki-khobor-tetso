@@ -1,69 +1,170 @@
 "use client";
 import { useRouter } from "next/navigation";
+import { useEffect, useRef } from "react";
 
 const modes = [
   {
     id: "senior",
     title: "Senior Mode",
     desc: "Street-smart advice from a senior who's seen it all.",
-    color: "hover:border-amber-400/60 hover:bg-amber-400/10",
+    gradient: "from-amber-500/20 to-orange-500/10",
+    border: "hover:border-amber-400/50",
     accent: "text-amber-400",
+    dot: "bg-amber-400",
     emoji: "🎓",
   },
   {
     id: "professional",
     title: "Professional Mode",
     desc: "Official college assistant. Crisp, accurate, structured.",
-    color: "hover:border-blue-400/60 hover:bg-blue-400/10",
+    gradient: "from-blue-500/20 to-cyan-500/10",
+    border: "hover:border-blue-400/50",
     accent: "text-blue-400",
+    dot: "bg-blue-400",
     emoji: "🏛️",
   },
   {
     id: "friendly",
     title: "Friendly Mode",
     desc: "Your hyper, fun friend who's always got your back.",
-    color: "hover:border-pink-400/60 hover:bg-pink-400/10",
+    gradient: "from-pink-500/20 to-purple-500/10",
+    border: "hover:border-pink-400/50",
     accent: "text-pink-400",
+    dot: "bg-pink-400",
     emoji: "🎉",
   },
 ];
+
+function StarCanvas() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const stars = Array.from({ length: 150 }, () => ({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      size: Math.random() * 1.2 + 0.3,
+      speed: Math.random() * 0.3 + 0.05,
+      opacity: Math.random() * 0.6 + 0.1,
+      twinkleSpeed: Math.random() * 0.02 + 0.005,
+      twinkleOffset: Math.random() * Math.PI * 2,
+    }));
+
+    let animFrame: number;
+    let tick = 0;
+
+    const draw = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      tick += 0.5;
+
+      stars.forEach((star) => {
+        star.y -= star.speed;
+        if (star.y < 0) {
+          star.y = canvas.height;
+          star.x = Math.random() * canvas.width;
+        }
+
+        const twinkle = Math.sin(tick * star.twinkleSpeed * 10 + star.twinkleOffset);
+        const opacity = star.opacity + twinkle * 0.15;
+
+        ctx.beginPath();
+        ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255, 255, 255, ${Math.max(0, Math.min(1, opacity))})`;
+        ctx.fill();
+      });
+
+      animFrame = requestAnimationFrame(draw);
+    };
+
+    draw();
+
+    const handleResize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      cancelAnimationFrame(animFrame);
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      className="absolute inset-0 pointer-events-none z-0"
+    />
+  );
+}
 
 export default function HomePage() {
   const router = useRouter();
 
   return (
-    <main className="min-h-screen bg-[#0a0a0a] text-white flex flex-col items-center justify-center px-6">
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:50px_50px] pointer-events-none" />
+    <main className="min-h-screen bg-[#080808] text-white flex flex-col items-center justify-center px-6 overflow-hidden relative">
 
-      <div className="relative text-center mb-16">
-        <p className="text-white/40 text-sm tracking-widest uppercase mb-4">
+      {/* Stars */}
+      <StarCanvas />
+
+      {/* Purple glow at top */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-purple-500/20 rounded-full blur-3xl pointer-events-none z-0" />
+
+      {/* Bottom subtle glow */}
+      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[400px] h-[200px] bg-blue-500/10 rounded-full blur-3xl pointer-events-none z-0" />
+
+      {/* Badge */}
+      <div className="relative z-10 inline-flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-2 mb-8">
+        <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+        <p className="text-white/40 text-xs tracking-widest uppercase">
           Tetso College · Campus AI
-        </p>
-        <h1 className="text-6xl font-bold mb-4 bg-gradient-to-r from-white via-white/80 to-white/40 bg-clip-text text-transparent">
-          Ki-Khobor Tetso
-        </h1>
-        <p className="text-white/50 text-lg max-w-md mx-auto">
-          Your campus, now talks back. Ask anything — in three different voices.
         </p>
       </div>
 
-      <div className="relative grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-4xl">
+      {/* Title */}
+      <h1 className="relative z-10 text-6xl md:text-7xl font-bold mb-4 text-center bg-gradient-to-b from-white via-white/90 to-white/20 bg-clip-text text-transparent leading-tight">
+        Ki-Khobor Tetso
+      </h1>
+
+      {/* Subtitle */}
+      <p className="relative z-10 text-white/35 text-base max-w-xs text-center mb-12 leading-relaxed">
+        Your campus, now talks back. Three voices, one assistant.
+      </p>
+
+      {/* Mode Cards */}
+      <div className="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-3xl">
         {modes.map((mode) => (
           <button
             key={mode.id}
             onClick={() => router.push("/chat")}
-            className={`group text-left bg-white/5 border border-white/10 rounded-3xl p-8 transition-all duration-300 ${mode.color} hover:scale-105 hover:shadow-2xl`}
+            className={`group text-left bg-gradient-to-br ${mode.gradient} border border-white/8 ${mode.border} rounded-2xl p-6 transition-all duration-300 hover:scale-[1.04] hover:shadow-2xl backdrop-blur-sm`}
           >
-            <div className="text-4xl mb-4">{mode.emoji}</div>
-            <h2 className={`text-xl font-bold mb-2 ${mode.accent}`}>
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-3xl">{mode.emoji}</span>
+              <div className={`w-2 h-2 rounded-full ${mode.dot} opacity-50 group-hover:opacity-100 transition-opacity`} />
+            </div>
+            <h2 className={`text-sm font-semibold mb-1 ${mode.accent}`}>
               {mode.title}
             </h2>
-            <p className="text-white/50 text-sm leading-relaxed">{mode.desc}</p>
+            <p className="text-white/35 text-xs leading-relaxed group-hover:text-white/55 transition-colors">
+              {mode.desc}
+            </p>
+            <div className={`mt-4 text-xs ${mode.accent} opacity-0 group-hover:opacity-100 transition-opacity`}>
+              Start chatting →
+            </div>
           </button>
         ))}
       </div>
 
-      <p className="relative mt-16 text-white/20 text-xs">
+      {/* Footer */}
+      <p className="relative z-10 mt-14 text-white/15 text-xs tracking-wide">
         Built by The A-Team · Tetso College Vibe Coding 2026
       </p>
     </main>
