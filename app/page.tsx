@@ -111,6 +111,15 @@ export default function HomePage() {
   return (
     <main className="min-h-screen bg-[#080808] text-white flex flex-col items-center justify-center px-6 overflow-hidden relative">
 
+      {/* Logo top left */}
+      <div className="absolute top-6 left-6 z-10">
+        <img
+          src="/logo.png"
+          alt="Ki-Khobor Tetso"
+          className="h-10 w-auto transition-all duration-300 hover:scale-110 hover:opacity-80 cursor-pointer"
+        />
+      </div>
+
       {/* Stars */}
       <StarCanvas />
 
